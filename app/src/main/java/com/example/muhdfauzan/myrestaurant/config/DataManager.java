@@ -2,7 +2,7 @@ package com.example.muhdfauzan.myrestaurant.config;
 
 public class DataManager {
 
-    public static String ADMIN_URL = "http://192.168.0.2/mpd/";
+    public static String ADMIN_URL = "http://192.168.0.12/mpd/";
     public static String RESTAURANT_URL = ADMIN_URL + "get_all_restaurant.php";
     public static String RESTAURANT_IMAGE_URL = ADMIN_URL + "restaurant/";
     public static String RESTAURANT_SEARCH_URL = ADMIN_URL + "search_restaurant.php";

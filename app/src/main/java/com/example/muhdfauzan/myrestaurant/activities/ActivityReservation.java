@@ -104,7 +104,16 @@ public class ActivityReservation extends AppCompatActivity {
                 r_date = date.getText().toString().trim();
                 r_time = time.getText().toString().trim();
                 r_comment = comment.getText().toString().trim();
-                new sendOrder().execute();
+
+                Log.d("Reservation",r_name + "|" + noOfPeople + "|" + r_phoneNo + "|" + r_email + "|" + r_date + "|" + r_time + "|" + r_comment);
+                if(r_name.length() > 0 && r_noOfPeople.length()>0 && r_phoneNo.length()>0 && r_email.length()>0 &&
+                        r_date.length()>0 && r_time.length()>0){
+                        new sendOrder().execute();
+
+                }
+                else
+                    Toast.makeText(ActivityReservation.this, "Please fill out all required fields ", Toast.LENGTH_SHORT).show();
+
             }
         });
     }

@@ -12,92 +12,64 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <RelativeLayout
-        android:id="@+id/lytSearch"
-        android:background="@color/colorPrimary"
-        android:layout_below="@id/toolbar"
+
+    <LinearLayout
+        android:id="@+id/custom_search"
+        android:layout_below="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:weightSum="2.5"
+        android:visibility="visible">
+
+        <SeekBar
+            android:id="@+id/seek_bar"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content" />
+
+        <EditText
+            android:id="@+id/tv_amount"
+            android:maxLength="4"
+            android:inputType="numberDecimal"
+            android:layout_width="0dp"
+            android:layout_weight="0.3"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:text="g"
+            android:layout_width="0dp"
+            android:layout_weight="0.2"
+            android:layout_height="wrap_content" />
+
+        <Spinner
+            android:id="@+id/spinner_nutrition"
+            android:entries="@array/nutrition_arrays"
+            android:prompt="@string/nutrition_prompt"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"></Spinner>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_search"
+        android:layout_below="@id/custom_search"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="45dp"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:weightSum="1"
-            android:layout_margin="4dp"
-            android:visibility="visible">
-
-            <android.support.v7.widget.CardView
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="0.9"
-                android:foreground="?android:attr/selectableItemBackground"
-                app:cardCornerRadius="6dp"
-                app:cardUseCompatPadding="true">
-
-                <EditText
-                    android:id="@+id/et_search"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="10dp"
-                    android:background="@color/white"
-                    android:hint="Search..."
-                    android:inputType="text"
-                    android:padding="7dp"
-                    android:singleLine="true"
-                    android:textColor="@color/hint"
-                    android:textSize="14sp" />
-
-            </android.support.v7.widget.CardView>
-
-            <com.balysv.materialripple.MaterialRippleLayout
-                android:id="@+id/ripple"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                app:mrl_rippleAlpha="0.2"
-                android:layout_weight="0.1"
-                app:mrl_rippleColor="@color/ripple_color"
-                app:mrl_rippleHover="true"
-                app:mrl_rippleOverlay="true">
-
-                <ImageButton
-                    android:id="@+id/btnSearch"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@color/colorPrimary"
-                    android:src="@drawable/search_icon" />
-
-            </com.balysv.materialripple.MaterialRippleLayout>
-
-        </LinearLayout>
-
-    </RelativeLayout>
-
-    <LinearLayout
-        android:id="@+id/advanced_search"
-        android:layout_below="@+id/lytSearch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center_vertical"
-        android:weightSum="1"
-        android:visibility="visible">
-
-
         <Button
-            android:id="@+id/btn_adv_search"
-            android:text="CUSTOM SEARCH"
+            android:id="@+id/btn_adv_searching"
+            android:text="SEARCH"
             android:textSize="15dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/label"
-        android:layout_below="@+id/advanced_search"
+        android:layout_below="@+id/ll_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"

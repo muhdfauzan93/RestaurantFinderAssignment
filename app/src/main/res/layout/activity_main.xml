@@ -19,6 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="45dp"
@@ -75,8 +76,42 @@
 
     </RelativeLayout>
 
-<LinearLayout
-    android:layout_below="@id/lytSearch"
+    <LinearLayout
+        android:id="@+id/label"
+        android:layout_below="@+id/lytSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:weightSum="2"
+        android:background="@color/red"
+        android:visibility="visible">
+
+        <TextView
+            android:text="Restaurant Name"
+            android:textStyle="bold"
+            android:textColor="@color/white"
+            android:paddingLeft="10dp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:text="Opening Hour"
+            android:textStyle="bold"
+            android:textAlignment="textEnd"
+            android:layout_gravity="end"
+            android:textColor="@color/white"
+            android:paddingRight="10dp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+
+    <LinearLayout
+    android:layout_below="@id/label"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">

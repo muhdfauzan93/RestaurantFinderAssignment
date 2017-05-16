@@ -2,12 +2,9 @@
     <!-- Single menu item
          Set id, icon and Title for each menu item
     -->
-    <item android:id="@+id/chart"
+    <item android:id="@+id/cart"
         android:icon="@drawable/app_logo"
-        android:title="Chart" />
+        android:title="My Cart" />
 
-    <item android:id="@+id/clear_chart"
-        android:icon="@drawable/app_logo"
-        android:title="Clear Chart" />
 
 </menu>

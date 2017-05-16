@@ -1,17 +1,12 @@
 package com.example.muhdfauzan.myrestaurant.activities;
 
-import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -23,17 +18,17 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.SeekBar;
+import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.muhdfauzan.myrestaurant.R;
-import com.example.muhdfauzan.myrestaurant.adapter.AdapterRestaurant;
+import com.example.muhdfauzan.myrestaurant.adapter.AdapterMenu;
 import com.example.muhdfauzan.myrestaurant.config.DataManager;
-import com.example.muhdfauzan.myrestaurant.model.ModelChart;
-import com.example.muhdfauzan.myrestaurant.model.ModelRestaurant;
-import com.example.muhdfauzan.myrestaurant.utils.DatabaseHandler;
-import com.example.muhdfauzan.myrestaurant.utils.GPSTracker;
+import com.example.muhdfauzan.myrestaurant.model.ModelMenu;
 import com.example.muhdfauzan.myrestaurant.utils.HttpHandler;
 import com.example.muhdfauzan.myrestaurant.utils.JSONParser;
 import com.example.muhdfauzan.myrestaurant.utils.RecyclerTouchListener;
@@ -48,99 +43,78 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ActivityMain extends AppCompatActivity {
+/**
+ * Created by MuhdFauzan on 5/17/2017.
+ */
 
-    private static final String LOG_TAG = ActivityMain.class.getSimpleName();
-    private ArrayList<ModelRestaurant> restaurantsArrayList = new ArrayList<ModelRestaurant>();
-    private ImageButton btn_search;
-    private EditText search_key;
-    private String search;
-    private AdapterRestaurant mAdapter;
+public class ActivityAdvancedSearch extends AppCompatActivity {
+
+    private static final String LOG_TAG = ActivityAdvancedSearch.class.getSimpleName();
+    private ArrayList<ModelMenu> menuArrayList = new ArrayList<ModelMenu>();
+    ;
+    private AdapterMenu mAdapter;
     private ProgressDialog pDialog;
     private RecyclerView recyclerView;
     private JSONParser jsonParser = new JSONParser();
     private static final String TAG_SUCCESS = "success";
     private SwipeRefreshLayout mSwipeRefreshLayout = null;
-    // GPSTracker class
-    GPSTracker gps;
-    private double longitude = 0, latitude = 0;
-
-    private static final int REQUEST_CODE_PERMISSION = 1;
-    String mPermission = Manifest.permission.ACCESS_FINE_LOCATION;
+    private String r_id;
+    private int total = 0;
+    private TextView tv_total_price;
+    private EditText nut_value;
+    private SeekBar sb_nut;
+    private String search;
+    private Button btn_reserve, btn_chart, btn_search;
+    private Spinner mySpinner;
+    private float totalPrice = 0;
 
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_advanced_search);
 
 
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         final android.support.v7.app.ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
-            getSupportActionBar().setTitle(R.string.app_name);
+            getSupportActionBar().setTitle("Menu");
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         }
         toolbar.setTitleTextColor(getResources().getColor(R.color.white));
 
 
 
+        if (savedInstanceState == null) {
+            Bundle extras = getIntent().getExtras();
+            if(extras == null) {
+                r_id = null;
+            } else {
+                r_id = extras.getString("r_id");
+            }
+        } else {
+            r_id = (String) savedInstanceState.getSerializable("r_id");
+        }
+
         initialize();
-        new getRestaurants().execute();
+        new getMenu().execute();
         // Making a request to url and getting response
 
-        SharedPreferences sharedpreferences = getSharedPreferences(DataManager.PREF_CHART, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedpreferences.edit();
-
-        //editor.putString("name", n);
-        //editor.putString("quantity", ph);
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeToRefresh);
 
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 mAdapter.notifyDataSetChanged();
-                restaurantsArrayList.clear();
-                new getRestaurants().execute();
+                menuArrayList.clear();
+                new getMenu().execute();
                 mSwipeRefreshLayout.setRefreshing(false);
             }
         });
 
-        btn_search = (ImageButton)findViewById(R.id.btnSearch);
-        search_key = (EditText)findViewById(R.id.et_search);
 
-        DatabaseHandler db = new DatabaseHandler(this);
-        db.deleteAll();
 
-        /**
-         * CRUD Operations
-         * */
-        // Inserting Contacts
-        Log.d("Insert: ", "Inserting ..");
-        db.addMenu(new ModelChart("test", "QEQWe", "qwqe", "www", "ww", "ww"));
-        // Reading all menu
-        Log.d("Reading: ", "Reading all contacts..");
-        List<ModelChart> chart = db.getAllChart();
-
-        for (ModelChart cn : chart) {
-            String log = "Id: " + cn.getId() + " ,Name: " + cn.getMenuName() + " ,Restaurant id: " + cn.getRestId() + " ,Type: " + cn.getMenuType() +
-                    " ,Price: " + cn.getMenuPrice() + " ,Details: " + cn.getMenuDetail();
-            // Writing Contacts to log
-            Log.d("Name: ", log);
-        }
-
-        btn_search.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                search = search_key.getText().toString();
-
-                if(search.length()>2) {
-                    restaurantsArrayList.clear();
-                    new searchRestaurant().execute();
-                }
-                else
-                    Toast.makeText(getApplicationContext(), "Enter min. 3 characters", Toast.LENGTH_SHORT).show();
-            }
-        });
 
 
 
@@ -148,8 +122,18 @@ public class ActivityMain extends AppCompatActivity {
 
     public void initialize() {
 
+        tv_total_price = (TextView)findViewById(R.id.tv_total_price);
+        btn_search = (Button)findViewById(R.id.btn_adv_searching);
+        btn_reserve = (Button)findViewById(R.id.btn_reserve);
+        btn_chart = (Button)findViewById(R.id.btn_chart);
+        sb_nut = (SeekBar)findViewById(R.id.seek_bar);
+        nut_value = (EditText)findViewById(R.id.tv_amount);
+
+        mySpinner = (Spinner) findViewById(R.id.spinner_nutrition);
+
+
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        mAdapter = new AdapterRestaurant(this, restaurantsArrayList);
+        mAdapter = new AdapterMenu(this, menuArrayList);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
@@ -161,57 +145,112 @@ public class ActivityMain extends AppCompatActivity {
             @Override
             public void onClick(View view, int position) {
                 // when chat is clicked, launch full chat thread activity
-                ModelRestaurant restaurant = restaurantsArrayList.get(position);
-                Intent i = new Intent(ActivityMain.this, ActivityMenuList.class);
-                i.putExtra("r_id", restaurant.getR_id());
-                startActivity(i);
+                ModelMenu menu = menuArrayList.get(position);
+                SharedPreferences sharedpreferences = getSharedPreferences(DataManager.PREF_CHART, Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedpreferences.edit();
 
+                int total = sharedpreferences.getInt("total", 0);
+                if (total != 0) {
+                    editor.putInt("total", total + 1);
+                    editor.putString("name_" + total, menu.getMenuName());
+                    editor.putFloat("price_" + total, Float.parseFloat(menu.getMenuPrice()));
+                    editor.commit();
+
+                }
+                else{
+                    editor.putInt("total", total + 1);
+                    editor.putString("name_" + total, menu.getMenuName());
+                    editor.putFloat("price_" + total, Float.parseFloat(menu.getMenuPrice()));
+                    editor.commit();
+
+                }
+                Toast.makeText(ActivityAdvancedSearch.this, menu.getMenuName() + " added to your cart", Toast.LENGTH_SHORT).show();
 
             }
 
             @Override
             public void onLongClick(View view, int position) {
 
-                if(Build.VERSION.SDK_INT>= 23) {
-
-                    if (checkSelfPermission(mPermission) != PackageManager.PERMISSION_GRANTED) {
-                        ActivityCompat.requestPermissions(ActivityMain.this,
-                                new String[]{mPermission,
-                                },
-                                REQUEST_CODE_PERMISSION);
-                        return;
-                    }
-
-                    else
-                    {
-                        Intent intent = new Intent(getApplicationContext(), ActivityGPS.class);
-                        startActivityForResult(intent,1);
-
-                        //gps = new GPSTracker(getApplicationContext());
-                        //latitude = gps.getLatitude();
-                        //longitude = gps.getLongitude();
-
-                    }
-                }
-                ModelRestaurant restaurant = restaurantsArrayList.get(position);
-                Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse("http://maps.google.com/maps?saddr="+latitude+","+longitude+"&daddr="+restaurant.getLatitude()+","+restaurant.getLongitude()+""));
-                startActivity(intent);
-
             }
         }));
+        final int step = 1;
+        final int max = 1000;
+        final int min = 0;
 
+        sb_nut.setMax( (max - min) / step );
+
+        sb_nut.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean b) {
+                double value = min + (progress * step);
+                nut_value.setText("" + value);
+                //nut_value.setX(seekBar.getX() + val + seekBar.getThumbOffset() / 2);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                //nut_value.setVisibility(View.VISIBLE);
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                //nut_value.setVisibility(View.GONE);
+            }
+        });
+
+        btn_reserve.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                SharedPreferences sharedpreferences = getSharedPreferences(DataManager.PREF_CHART, Context.MODE_PRIVATE);
+                int total = sharedpreferences.getInt("total", 0);
+
+                if(total > 0) {
+                    Intent i = new Intent(ActivityAdvancedSearch.this, ActivityReservation.class);
+                    i.putExtra("r_id", r_id);
+                    startActivity(i);
+                }
+                else
+                    Toast.makeText(ActivityAdvancedSearch.this, "Cart is empty", Toast.LENGTH_SHORT).show();
+
+            }
+        });
+
+        btn_chart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(ActivityAdvancedSearch.this, ActivityCart.class);
+                startActivity(i);
+            }
+        });
+
+        btn_search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if(nut_value.length()>0){
+                    Float my_value = Float.parseFloat(nut_value.getText().toString());
+                    String text = mySpinner.getSelectedItem().toString();
+                    Toast.makeText(ActivityAdvancedSearch.this, "Search: " + text + " " + my_value , Toast.LENGTH_SHORT).show();
+                }
+                else
+                    Toast.makeText(ActivityAdvancedSearch.this, "Nutrition value cannot be empty", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
 
     /**
      * Async task class to get json by making HTTP call
      */
-    private class getRestaurants extends AsyncTask<Void, Void, Void> {
+    private class getMenu extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             // Showing progress dialog
-            pDialog = new ProgressDialog(ActivityMain.this);
+            pDialog = new ProgressDialog(ActivityAdvancedSearch.this);
             pDialog.setMessage("Please wait...");
             pDialog.setCancelable(false);
             pDialog.show();
@@ -223,7 +262,7 @@ public class ActivityMain extends AppCompatActivity {
             HttpHandler sh = new HttpHandler();
 
             // Making a request to url and getting response
-            String jsonStr = sh.makeServiceCall(DataManager.RESTAURANT_URL);
+            String jsonStr = sh.makeServiceCall(DataManager.MENU_URL);
 
 
             if (jsonStr != null) {
@@ -233,33 +272,31 @@ public class ActivityMain extends AppCompatActivity {
 
 
                     List<NameValuePair> params = new ArrayList<NameValuePair>();
+                    params.add(new BasicNameValuePair("r_id", r_id));
 
-                    JSONObject json = jsonParser.makeHttpRequest(DataManager.RESTAURANT_URL,
+                    JSONObject json = jsonParser.makeHttpRequest(DataManager.MENU_URL,
                             "GET", params);
 
-                    Log.d(LOG_TAG,"Json Get Single Chat: " + json);
+                    Log.d(LOG_TAG,"Menu List: " + json);
 
                     // json success tag
                     success = json.getInt(TAG_SUCCESS);
                     if (success == 1) {
                         // successfully received product details
-                        JSONArray msgObj = json.getJSONArray("restaurants"); // JSON Array
+                        JSONArray msgObj = json.getJSONArray("menu"); // JSON Array
                         for (int i = 0; i <msgObj.length() ; i++) {
                             JSONObject message = msgObj.getJSONObject(i);
 
-                            String id = message.getString("id");
-                            String name = message.getString("name");
-                            String address = message.getString("address");
-                            String lat = message.getString("lat");
-                            String longt = message.getString("longt");
-                            String open_hour = message.getString("open_hour");
-                            String image = message.getString("image");
+                            String rid = message.getString("r_id");
+                            String id = message.getString("m_id");
+                            String name = message.getString("m_name");
+                            String type = message.getString("m_type");
+                            String detail = message.getString("m_detail");
+                            String price = message.getString("m_price");
                             //String count = message.getString("message");
                             // message with this pid found
-                            ModelRestaurant addRestaurant= new ModelRestaurant(id,name,address,lat,longt,open_hour, image);
-                            restaurantsArrayList.add(addRestaurant);
-
-
+                            ModelMenu addMenu= new ModelMenu(id,rid,name,type,price,detail);
+                            menuArrayList.add(addMenu);
                         }
 
                     }else{
@@ -268,7 +305,7 @@ public class ActivityMain extends AppCompatActivity {
                             @Override
                             public void run() {
                                 Toast.makeText(getApplicationContext(),
-                                        "Restaurant not found",
+                                        "Menu not found" ,
                                         Toast.LENGTH_LONG)
                                         .show();
                             }
@@ -320,28 +357,16 @@ public class ActivityMain extends AppCompatActivity {
         }
 
     }
-
-
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == 1){
-            Bundle extras = data.getExtras();
-            longitude = extras.getDouble("Longitude");
-            latitude= extras.getDouble("Latitude");
-        }
-    }
-
-
     /**
      * Async task class to get json by making HTTP call
      */
-    private class searchRestaurant extends AsyncTask<Void, Void, Void> {
+    private class searchMenu extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             // Showing progress dialog
-            pDialog = new ProgressDialog(ActivityMain.this);
+            pDialog = new ProgressDialog(ActivityAdvancedSearch.this);
             pDialog.setMessage("Please wait...");
             pDialog.setCancelable(false);
             pDialog.show();
@@ -353,7 +378,7 @@ public class ActivityMain extends AppCompatActivity {
             HttpHandler sh = new HttpHandler();
 
             // Making a request to url and getting response
-            String jsonStr = sh.makeServiceCall(DataManager.RESTAURANT_SEARCH_URL);
+            String jsonStr = sh.makeServiceCall(DataManager.SEARCH_MENU_URL);
 
 
             if (jsonStr != null) {
@@ -364,8 +389,9 @@ public class ActivityMain extends AppCompatActivity {
 
                     List<NameValuePair> params = new ArrayList<NameValuePair>();
                     params.add(new BasicNameValuePair("search", search));
+                    params.add(new BasicNameValuePair("r_id", r_id));
 
-                    JSONObject json = jsonParser.makeHttpRequest(DataManager.RESTAURANT_SEARCH_URL,
+                    JSONObject json = jsonParser.makeHttpRequest(DataManager.SEARCH_MENU_URL,
                             "GET", params);
 
                     Log.d("Search restaurant",json.toString());
@@ -374,28 +400,25 @@ public class ActivityMain extends AppCompatActivity {
                     success = json.getInt(TAG_SUCCESS);
                     if (success == 1) {
                         // successfully received product details
-                        JSONArray msgObj = json.getJSONArray("restaurants"); // JSON Array
+                        JSONArray msgObj = json.getJSONArray("menu"); // JSON Array
                         for (int i = 0; i <msgObj.length() ; i++) {
                             JSONObject message = msgObj.getJSONObject(i);
 
-                            String id = message.getString("id");
-                            String name = message.getString("name");
-                            String address = message.getString("address");
-                            String lat = message.getString("lat");
-                            String longt = message.getString("longt");
-                            String open_hour = message.getString("open_hour");
-                            String image = message.getString("image");
+                            String rid = message.getString("r_id");
+                            String id = message.getString("m_id");
+                            String name = message.getString("m_name");
+                            String type = message.getString("m_type");
+                            String detail = message.getString("m_detail");
+                            String price = message.getString("m_price");
                             //String count = message.getString("message");
                             // message with this pid found
-                            ModelRestaurant addRestaurant= new ModelRestaurant(id,name,address,lat,longt,open_hour, image);
-                            restaurantsArrayList.add(addRestaurant);
-
-
+                            ModelMenu addMenu= new ModelMenu(id,rid,name,type,price,detail);
+                            menuArrayList.add(addMenu);
                         }
 
                     }else{
                         // product with pid not found
-                        // Toast.makeText(ActivityInbox.this, "Message not found", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(ActivityMenuList.this, "Menu not found", Toast.LENGTH_SHORT).show();
                     }
 
 
@@ -443,8 +466,6 @@ public class ActivityMain extends AppCompatActivity {
 
     }
 
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
@@ -459,8 +480,12 @@ public class ActivityMain extends AppCompatActivity {
         switch (item.getItemId())
         {
             case R.id.cart:
-                Intent i = new Intent(ActivityMain.this, ActivityCart.class);
+                Intent i = new Intent(ActivityAdvancedSearch.this, ActivityCart.class);
                 startActivity(i);
+                return true;
+
+            case android.R.id.home:
+                onBackPressed();
                 return true;
 
             default:
@@ -469,6 +494,7 @@ public class ActivityMain extends AppCompatActivity {
     }
 
 }
+
 
 
 

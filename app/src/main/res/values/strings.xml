@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">Restaurant Finder</string>
+
+    <string name="nutrition_prompt">Choose nutrition</string>
+
+    <string-array name="nutrition_arrays">
+        <item>Calories</item>
+        <item>Cholesterol</item>
+        <item>Sodium</item>
+        <item>Potassium</item>
+        <item>Protein</item>
+        <item>Zinc</item>
+        <item>Sugar</item>
+    </string-array>
 </resources>

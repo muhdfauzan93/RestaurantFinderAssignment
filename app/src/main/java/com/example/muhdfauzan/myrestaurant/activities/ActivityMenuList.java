@@ -27,9 +27,7 @@ import android.widget.Toast;
 import com.example.muhdfauzan.myrestaurant.R;
 import com.example.muhdfauzan.myrestaurant.adapter.AdapterMenu;
 import com.example.muhdfauzan.myrestaurant.config.DataManager;
-import com.example.muhdfauzan.myrestaurant.model.ModelChart;
 import com.example.muhdfauzan.myrestaurant.model.ModelMenu;
-import com.example.muhdfauzan.myrestaurant.utils.DatabaseHandler;
 import com.example.muhdfauzan.myrestaurant.utils.HttpHandler;
 import com.example.muhdfauzan.myrestaurant.utils.JSONParser;
 import com.example.muhdfauzan.myrestaurant.utils.RecyclerTouchListener;
@@ -61,7 +59,8 @@ public class ActivityMenuList extends AppCompatActivity{
     private EditText search_key;
     private String search;
     private ImageButton btn_search;
-    private Button btn_reserve;
+    private Button btn_reserve, btn_chart, btn_custom_search;
+    private float totalPrice = 0;
 
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,7 +93,6 @@ public class ActivityMenuList extends AppCompatActivity{
 
         initialize();
         new getMenu().execute();
-        totalPrice();
         // Making a request to url and getting response
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeToRefresh);
@@ -109,32 +107,11 @@ public class ActivityMenuList extends AppCompatActivity{
             }
         });
 
-
-
-        DatabaseHandler db = new DatabaseHandler(this);
-        db.deleteAll();
-
-        /**
-         * CRUD Operations
-         * */
-        // Inserting Contacts
-        Log.d("Insert: ", "Inserting ..");
-        db.addMenu(new ModelChart("test", "QEQWe", "qwqe", "www", "ww", "ww"));
-        // Reading all menu
-        Log.d("Reading: ", "Reading all contacts..");
-        List<ModelChart> chart = db.getAllChart();
-
-        for (ModelChart cn : chart) {
-            String log = "Id: " + cn.getId() + " ,Name: " + cn.getMenuName() + " ,Restaurant id: " + cn.getRestId() + " ,Type: " + cn.getMenuType() +
-                    " ,Price: " + cn.getMenuPrice() + " ,Details: " + cn.getMenuDetail();
-            // Writing Contacts to log
-            Log.d("Name: ", log);
-
-
-        }
         btn_search = (ImageButton)findViewById(R.id.btnSearch);
         search_key = (EditText)findViewById(R.id.et_search);
         btn_reserve = (Button)findViewById(R.id.btn_reserve);
+        btn_chart = (Button)findViewById(R.id.btn_chart);
+        btn_custom_search = (Button)findViewById(R.id.btn_adv_search);
 
         btn_search.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -148,10 +125,34 @@ public class ActivityMenuList extends AppCompatActivity{
         btn_reserve.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(ActivityMenuList.this, ActivityReservation.class);
-                i.putExtra("r_id", r_id);
-                startActivity(i);
 
+                SharedPreferences sharedpreferences = getSharedPreferences(DataManager.PREF_CHART, Context.MODE_PRIVATE);
+                int total = sharedpreferences.getInt("total", 0);
+
+                if(total > 0) {
+                    Intent i = new Intent(ActivityMenuList.this, ActivityReservation.class);
+                    i.putExtra("r_id", r_id);
+                    startActivity(i);
+                }
+                else
+                    Toast.makeText(ActivityMenuList.this, "Cart is empty", Toast.LENGTH_SHORT).show();
+
+            }
+        });
+
+        btn_chart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(ActivityMenuList.this, ActivityCart.class);
+                startActivity(i);
+            }
+        });
+
+        btn_custom_search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(ActivityMenuList.this, ActivityAdvancedSearch.class);
+                startActivity(i);
             }
         });
 
@@ -159,7 +160,6 @@ public class ActivityMenuList extends AppCompatActivity{
     }
 
     public void initialize() {
-
 
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         mAdapter = new AdapterMenu(this, menuArrayList);
@@ -193,7 +193,8 @@ public class ActivityMenuList extends AppCompatActivity{
                     editor.commit();
 
                 }
-                totalPrice();
+                Toast.makeText(ActivityMenuList.this, menu.getMenuName() + " added to your cart", Toast.LENGTH_SHORT).show();
+
             }
 
             @Override
@@ -206,19 +207,6 @@ public class ActivityMenuList extends AppCompatActivity{
 
     }
 
-    private void totalPrice(){
-        SharedPreferences sharedpreferences = getSharedPreferences(DataManager.PREF_CHART, Context.MODE_PRIVATE);
-        float totalPrice = 0;
-        int total = sharedpreferences.getInt("total", 0);
-        for (int i = 0; i <total ; i++) {
-            String name = sharedpreferences.getString("name_" + i, null);
-            Float price = sharedpreferences.getFloat("price_" + i, 0);
-            Log.d("Menu List:", "Total: " + total + "|" + "Name: " + name + " | " + "Price: " + price);
-            totalPrice = totalPrice + price;
-        }
-        Log.d("Total Price:", "Total Price:" + totalPrice );
-        tv_total_price.setText("Total Price: RM" + String.valueOf(totalPrice));
-    }
 
     /**
      * Async task class to get json by making HTTP call
@@ -449,21 +437,14 @@ public class ActivityMenuList extends AppCompatActivity{
 
         switch (item.getItemId())
         {
-            case R.id.chart:
-
+            case R.id.cart:
+                Intent i = new Intent(ActivityMenuList.this, ActivityCart.class);
+                startActivity(i);
                 return true;
 
-            case R.id.clear_chart:
-                SharedPreferences sharedpreferences = getSharedPreferences(DataManager.PREF_CHART, Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedpreferences.edit();
-                editor.clear().commit();
-                totalPrice();
-                return true;
             case android.R.id.home:
                 onBackPressed();
                 return true;
-
-
 
             default:
                 return super.onOptionsItemSelected(item);
