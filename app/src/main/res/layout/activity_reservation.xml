@@ -1,0 +1,137 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <ScrollView
+        android:id="@+id/sclDetail"
+        android:layout_below="@+id/toolbar"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:fadeScrollbars="true"
+        android:scrollbars="none"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
+        <!--android:visibility="gone"-->
+        <LinearLayout
+            android:id="@+id/lytContent"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp" >
+            <EditText
+                android:id="@+id/et_Name"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:hint="Your Name"
+                android:inputType="textCapWords"
+                android:padding="10dp" >
+            </EditText>
+
+            <EditText
+                android:id="@+id/et_no_of_people"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:hint="Number of People"
+                android:inputType="number"
+                android:padding="10dp" >
+            </EditText>
+
+            <EditText
+                android:id="@+id/et_phone_no"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:hint="Phone Number"
+                android:inputType="phone"
+                android:padding="10dp" >
+            </EditText>
+
+            <EditText
+                android:id="@+id/et_email"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:hint="Your Email"
+                android:inputType="textEmailAddress"
+                android:padding="10dp" >
+            </EditText>
+
+            <EditText
+                android:id="@+id/et_date"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:hint="Date"
+                android:inputType="date"
+                android:padding="10dp" >
+            </EditText>
+
+            <EditText
+                android:id="@+id/et_time"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:hint="Time"
+                android:inputType="time"
+                android:padding="10dp" >
+            </EditText>
+
+            <TextView
+                android:id="@+id/tv_total_order"
+                android:layout_marginBottom="10dp"
+                android:hint="Contain"
+                android:inputType="textMultiLine"
+                android:padding="10dp"
+                android:singleLine="false"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/tv_total_price"
+                android:layout_marginBottom="10dp"
+                android:hint="Price"
+                android:textStyle="bold"
+                android:inputType="text"
+                android:padding="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+
+            <EditText
+                android:id="@+id/et_comment"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="horizontal"
+                android:layout_marginBottom="10dp"
+                android:hint="Comment"
+                android:inputType="text"
+                android:padding="10dp" >
+            </EditText>
+
+            <Button
+                android:id="@+id/btnSend"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"
+                android:text="SEND"
+                android:textColor="@color/white"
+                android:textStyle="bold" />
+
+
+        </LinearLayout>
+
+
+    </ScrollView>
+
+</RelativeLayout>

@@ -1,0 +1,13 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Single menu item
+         Set id, icon and Title for each menu item
+    -->
+    <item android:id="@+id/chart"
+        android:icon="@drawable/app_logo"
+        android:title="Chart" />
+
+    <item android:id="@+id/clear_chart"
+        android:icon="@drawable/app_logo"
+        android:title="Clear Chart" />
+
+</menu>
